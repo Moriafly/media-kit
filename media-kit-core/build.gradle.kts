@@ -1,7 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    `maven-publish`
 }
+
+group = "com.github.Moriafly"
+version = "0.1.0-dev01"
 
 android {
     namespace = "com.moriafly.mediakit.core"
@@ -23,10 +27,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -37,4 +43,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            from(components["release"])
+        }
+    }
 }
