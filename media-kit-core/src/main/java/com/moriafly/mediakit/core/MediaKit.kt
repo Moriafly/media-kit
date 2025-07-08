@@ -121,12 +121,7 @@ object MediaKit {
             // Android 12+ ForegroundServiceDidNotStartInTimeException
 
             // 对于 Android 8.0+ 的应用，即便在后台也可以通过 startForegroundService 启动前台服务
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                return context.startForegroundService(intent)
-            }
-
-            // 但是 Android 12+ 不允许后台应用启动前台服务
-            // 虽然这个地方已经确认当前应用不是前台应用，但是存在豁免情况，所以继续尝试
+            // 但是 Android 12+ 不允许后台应用启动前台服务，虽然这个地方已经确认当前应用不是前台应用，但是存在豁免情况，所以继续尝试
             // 参考：https://developer.android.google.cn/develop/background-work/services/fgs/restrictions-bg-start?hl=zh-cn#background-start-restriction-exemptions
             return context.startForegroundService(intent)
         }
