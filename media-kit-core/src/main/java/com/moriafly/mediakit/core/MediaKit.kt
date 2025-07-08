@@ -82,9 +82,7 @@ object MediaKit {
      * Build.VERSION_CODES.S or later, and the foreground service is restricted from start due to
      * background restriction.
      *
-     * @return If the service is being started or is already running, the ComponentName of the
-     * actual service that was started is returned; else if the service does not exist null is
-     * returned.
+     * @return 如果服务正在启动或已在运行，则返回实际启动服务的 [ComponentName]；否则若服务不存在，则返回 null。
      */
     fun tryStartService(context: Context, intent: Intent): ComponentName? {
         // 如果是 Android 8.0 以下，则直接启动后台服务

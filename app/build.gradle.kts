@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":media-kit-core"))
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
