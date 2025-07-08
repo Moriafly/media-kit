@@ -29,15 +29,49 @@ import android.os.Build
 @UnstableMediaKitApi
 object MediaKit {
     /**
-     * 尝试启动服务
+     * # 尝试启动服务
      *
-     * “贪婪”式启动服务，不保证是启动普通服务或者前台服务，该功能的目的是尽量启动服务
-     *
-     * 它会优先使用 startService 启动服务，如果启动失败，则尝试使用 startForegroundService 继续启动服务
-     *
-     * 以此方法启动的服务需要以前台服务的逻辑进行处理，需要尽快调用 ServiceCompat.startForeground
+     * **贪婪**式启动服务，不保证是启动普通服务或者前台服务，该功能的目的是尽量启动服务。
+     * 它会优先使用 `startService()` 启动服务，如果启动失败，则尝试使用 `startForegroundService()` 继续启动服务。
+     * 以此方法启动的服务需要以前台服务的逻辑进行处理，需要尽快调用 ServiceCompat.startForeground。
      *
      * 此函数使用前提参考：https://developer.android.google.cn/develop/background-work/services/fgs/changes?hl=zh-cn
+     *
+     * ## 注意 1
+     *
+     * 如果以前台服务启动，那么 `startForeground()` 是强制性的，即便在启动后立刻触发销毁服务，
+     * 类似与 Android 系统的**“严格合约” (Strict Contract)**——向系统做出了一个绝对的、不可撤销的承诺：
+     * “我即将启动一个 Service，并且这个 Service 必须、一定会调用 `startForeground()` 方法来显示一个通知，从而转变为前台服务”
+     * 这个合约只有一种方式可以“履行”：成功调用 `startForeground()`，不存在“中途取消”或“提前终止”的选项。
+     * 此情况在 Android 文档中未提及，issue 参考：
+     * - https://issuetracker.google.com/issues/64142050
+     * - https://issuetracker.google.com/issues/76112072
+     * - Google 官方人员说明 Won't Fix (Intended Behavior)：https://issuetracker.google.com/issues/76112072#comment36
+     *
+     * ## 注意 2
+     *
+     * Service 的 `onCreate()` 方法只会在服务首次创建时调用一次，
+     * `onStartCommand()` 方法会在每次客户端通过 `startService()` 或 `startForegroundService()` 请求启动服务时被调用，
+     * `startForegroundService()` 的承诺和此方法本身绑定，无论服务是否已经运行，
+     * 所以需要在 `onStartCommand()` 中调用 `startForeground()` 方法来提升到前台。
+     *
+     * ## 注意 3
+     *
+     * 警惕耗时的 `Application.onCreate()`：这是一个非常隐蔽的崩溃陷阱！当系统因内存不足等原因杀死应用进程后，
+     * 若服务当前是**前台服务**的同时被设定为自动重启（`START_STICKY`），系统会先执行 `Application.onCreate()`，
+     * 然后才执行服务的生命周期方法。如果 `Application.onCreate()` 耗时过长（例如超过 5 秒），它将耗尽前台服务启动的全部超时时间，
+     * 导致服务还未执行到 `onStartCommand()` 就已超时，从而引发崩溃。
+     * **必须确保 Application 的 onCreate 方法是轻量且迅速的！**
+     *
+     * ## 注意 4
+     *
+     * 在设备启动时 (`BOOT_COMPLETED`) 启动的风险：在接收到 `BOOT_COMPLETED` 广播后立即启动前台服务风险极高。
+     * 设备刚启动的前几十秒是系统资源竞争最激烈的时候，即使你的代码本身很快，你的服务进程也可能因为 CPU 调度繁忙而被阻塞，
+     * 无法及时执行 `onStartCommand`，从而导致超时。这个问题在某些厂商的设备上（如三星）尤为常见。
+     *
+     * ## 其他参考
+     *
+     * - 服务恢复时存在的问题：https://issuetracker.google.com/issues/76112072#comment122
      *
      * @param context 环境
      * @param intent 启动服务意图
