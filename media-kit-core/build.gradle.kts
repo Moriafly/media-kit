@@ -49,7 +49,7 @@ afterEvaluate {
                 from(components["release"])
 
                 groupId = "com.github.Moriafly"
-                artifactId = "mediakit-core"
+                artifactId = "media-kit-core"
                 version = "0.1.0-dev02"
             }
         }
