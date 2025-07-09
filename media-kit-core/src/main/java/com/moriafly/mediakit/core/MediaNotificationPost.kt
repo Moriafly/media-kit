@@ -70,7 +70,6 @@ abstract class MediaNotificationPost(
      * @param notification 通知
      * @param strategy [Strategy]
      */
-
     fun postNotification(
         notification: Notification,
         strategy: Strategy
