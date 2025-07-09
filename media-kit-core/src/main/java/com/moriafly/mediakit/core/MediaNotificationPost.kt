@@ -52,7 +52,7 @@ import androidx.core.app.ServiceCompat
  * NotificationManager.notify(int, Notification); must not be 0.
  */
 @UnstableMediaKitApi
-abstract class MediaNotificationPost(
+class MediaNotificationPost(
     val service: Service,
     val notificationId: Int
 ) {
