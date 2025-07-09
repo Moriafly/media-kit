@@ -85,7 +85,7 @@ abstract class MediaNotificationPost(
                 if (!isInForeground) {
                     val intent = Intent(service, service::class.java)
                     try {
-                        // 向系统发生“合约”
+                        // 向系统发送合约
                         MediaKit.startForegroundService(service, intent)
                         // 此时候服务本身就在运行，直接 startForeground 完成合约
                         ServiceCompat.startForeground(
