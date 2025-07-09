@@ -29,6 +29,19 @@ import android.os.Build
 @UnstableMediaKitApi
 object MediaKit {
     /**
+     * 启动前台服务
+     */
+    fun startForegroundService(
+        context: Context,
+        intent: Intent
+    ): ComponentName? =
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            context.startService(intent)
+        } else {
+            context.startForegroundService(intent)
+        }
+
+    /**
      * # 尝试启动服务
      *
      * **贪婪**式启动服务，不保证是启动普通服务或者前台服务，该功能的目的是尽量启动服务。
