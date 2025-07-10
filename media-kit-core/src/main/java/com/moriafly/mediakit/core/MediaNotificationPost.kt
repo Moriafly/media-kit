@@ -64,7 +64,7 @@ class MediaNotificationPost(
     /**
      * 服务是否在前台
      *
-     * 仅表示内部逻辑，它不能完全翻译服务是否在前台的完全真实状态，详见 [stopInForeground] 注释
+     * 仅表示内部逻辑，它不能完全反应服务是否在前台的完全真实状态，详见 [stopInForeground] 注释
      */
     var isInForeground: Boolean = false
         private set
