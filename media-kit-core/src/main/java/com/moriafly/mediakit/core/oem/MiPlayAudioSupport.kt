@@ -26,7 +26,7 @@ import android.content.pm.PackageManager
 import com.moriafly.mediakit.core.UnstableMediaKitApi
 
 /**
- * 小米秒播适配
+ * 小米妙播适配
  */
 @UnstableMediaKitApi
 object MiPlayAudioSupport {
