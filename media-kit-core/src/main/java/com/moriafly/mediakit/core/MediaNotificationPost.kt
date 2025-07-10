@@ -160,6 +160,10 @@ class MediaNotificationPost(
      * @param removeNotification 是否停止前台状态的同时也移除当前通知
      */
     private fun stopInForeground(removeNotification: Boolean) {
+        // ServiceCompat.stopForeground 是一个同步调用，它会向 ActivityManagerService 发送一个请求
+        // 然而，系统处理这个请求是异步的，在极端的时机（例如，系统负载极高），服务的实际前台状态可能不会立即改变
+        // 当前实现是标准且可接受的, 这更多是一个理论上的考量点而不是一个实际的 Bug
+        // Android Media 3 的 PlayerNotificationManager 采用了相同的逻辑
         ServiceCompat.stopForeground(
             service,
             if (removeNotification) {
@@ -168,10 +172,6 @@ class MediaNotificationPost(
                 ServiceCompat.STOP_FOREGROUND_DETACH
             }
         )
-        // ServiceCompat.stopForeground 是一个同步调用，它会向 ActivityManagerService 发送一个请求
-        // 然而，系统处理这个请求是异步的,在极端的时机（例如，系统负载极高），服务的实际前台状态可能不会立即改变
-        // 当前实现是标准且可接受的, 这更多是一个理论上的考量点而不是一个实际的 Bug
-        // Android Media 3 的 PlayerNotificationManager 采用了完全相同的逻辑
         isInForeground = false
     }
 
