@@ -26,7 +26,6 @@ import android.os.Build
 /**
  * Media Kit
  */
-@UnstableMediaKitApi
 object MediaKit {
     /**
      * 启动前台服务
@@ -97,6 +96,7 @@ object MediaKit {
      *
      * @return 如果服务正在启动或已在运行，则返回实际启动服务的 [ComponentName]；否则若服务不存在，则返回 null。
      */
+    @UnstableMediaKitApi
     fun tryStartService(context: Context, intent: Intent): ComponentName? {
         // 如果是 Android 8.0 以下，则直接启动后台服务
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
