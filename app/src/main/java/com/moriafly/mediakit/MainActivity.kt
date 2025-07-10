@@ -8,12 +8,15 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.moriafly.mediakit.core.MediaKit
 import com.moriafly.mediakit.core.UnstableMediaKitApi
+import com.moriafly.mediakit.core.oem.MiPlayAudioSupport
 
 class MainActivity : Activity() {
     @OptIn(UnstableMediaKitApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
+
+        Log.d(TAG, "supportMiPlay: ${MiPlayAudioSupport.supportMiPlay(this)}")
     }
 
     override fun onPause() {
