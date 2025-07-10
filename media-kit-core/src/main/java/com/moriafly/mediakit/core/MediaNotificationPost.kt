@@ -38,7 +38,7 @@ import androidx.core.app.ServiceCompat
  * ## UI（Activity）和 Service 应该通过 bindService 通信
  *
  * 这样会更稳定且避免了最开始通过 startForegroundService 启动必须显示通知的情况，
- * 更多问题参考 [MediaKit.tryStartService] 的说明。同时参考 Google Media 注释：
+ * 更多问题参考 [MediaKit.tryStartService] 的说明。同时参考 AndroidX Media 注释：
  * - 防止服务所有者的 `stopSelf()` 销毁服务：
  * 当使用 `startForegroundService()` 时，如果服务调用 `stopSelf()`，即使另一个线程中的 `onConnect()` 仍在运行，
  * 也会立即在主线程上触发 `onDestroy()` 调用。这可能导致服务在不恰当的时机被销毁。
@@ -163,7 +163,7 @@ class MediaNotificationPost(
         // ServiceCompat.stopForeground 是一个同步调用，它会向 ActivityManagerService 发送一个请求
         // 然而，系统处理这个请求是异步的，在极端的时机（例如，系统负载极高），服务的实际前台状态可能不会立即改变
         // 当前实现是标准且可接受的, 这更多是一个理论上的考量点而不是一个实际的 Bug
-        // Android Media 3 的 PlayerNotificationManager 采用了相同的逻辑
+        // AndroidX Media 的 PlayerNotificationManager 采用了相同的逻辑
         ServiceCompat.stopForeground(
             service,
             if (removeNotification) {
