@@ -18,10 +18,13 @@
 package com.moriafly.mediakit.core
 
 import android.annotation.SuppressLint
+import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.os.Build
+import androidx.annotation.MainThread
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 
@@ -30,7 +33,7 @@ import androidx.core.app.ServiceCompat
  *
  * **所有方法必须在主线程调用**
  *
- * 自带前台服务管理，参考 Media3 Notification。
+ * 自带前台服务管理，参考 Media3 Notification
  *
  * ## UI（Activity）和 Service 应该通过 bindService 通信
  *
@@ -60,9 +63,16 @@ class MediaNotificationPost(
 
     /**
      * 服务是否在前台
+     *
+     * 仅表示内部逻辑，它不能完全翻译服务是否在前台的完全真实状态，详见 [stopInForeground] 注释
      */
     var isInForeground: Boolean = false
         private set
+
+    /**
+     * 在前台服务启动失败时回调（Android 12+），可以不处理
+     */
+    var onForegroundServiceStartNotAllowedException: () -> Unit = {}
 
     /**
      * 推送通知
@@ -70,11 +80,12 @@ class MediaNotificationPost(
      * @param notification 通知
      * @param strategy [Strategy]
      */
+    @MainThread
     fun postNotification(
         notification: Notification,
         strategy: Strategy
     ) {
-        fun updateNotificationNone() {
+        fun postNotificationNone() {
             // 对于媒体通知不需要权限
             @SuppressLint("MissingPermission")
             notificationManagerCompat.notify(notificationId, notification)
@@ -97,30 +108,44 @@ class MediaNotificationPost(
                         )
                         // 完成前台提升
                         isInForeground = true
-                    } catch (_: IllegalStateException) {
+                    } catch (e: IllegalStateException) {
                         // ForegroundServiceStartNotAllowedException 继承自 IllegalStateException
-                        // 提升前台失败，Do nothing
+                        // 提升前台失败
+                        if (
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                            e is ForegroundServiceStartNotAllowedException
+                        ) {
+                            onForegroundServiceStartNotAllowedException()
+
+                            // 继续发送通知，确保通知发送
+                            postNotificationNone()
+                        } else {
+                            // 抛出异常，此需要开发者处理
+                            throw e
+                        }
                     }
                 } else {
-                    updateNotificationNone()
+                    postNotificationNone()
                 }
             }
 
             Strategy.StopForeground -> {
-                updateNotificationNone()
-
+                // 先更新通知，确保内容显示正确
+                postNotificationNone()
+                // 如果当前是前台服务，则将其降级
                 if (isInForeground) {
                     stopInForeground(false)
                 }
             }
 
-            Strategy.None -> updateNotificationNone()
+            Strategy.None -> postNotificationNone()
         }
     }
 
     /**
-     * 移除通知
+     * 移除通知，如果服务当前是前台服务，此方法会将其停止并移除通知
      */
+    @MainThread
     fun removeNotification() {
         if (isInForeground) {
             stopInForeground(true)
@@ -143,6 +168,10 @@ class MediaNotificationPost(
                 ServiceCompat.STOP_FOREGROUND_DETACH
             }
         )
+        // ServiceCompat.stopForeground 是一个同步调用，它会向 ActivityManagerService 发送一个请求
+        // 然而，系统处理这个请求是异步的,在极端的时机（例如，系统负载极高），服务的实际前台状态可能不会立即改变
+        // 当前实现是标准且可接受的, 这更多是一个理论上的考量点而不是一个实际的 Bug
+        // Android Media 3 的 PlayerNotificationManager 采用了完全相同的逻辑
         isInForeground = false
     }
 
