@@ -32,7 +32,6 @@ import com.moriafly.mediakit.core.UnstableMediaKitApi
 object MiPlayAudioSupport {
     private const val ACTION_MIPLAY_DETAIL = "miui.intent.action.ACTIVITY_MIPLAY_DETAIL"
     private const val AUDIO_RECORD_CLASS = "miui.media.MiuiAudioPlaybackRecorder"
-    private const val MSG_ACTIVE_AUDIO_SESSION_CHANGE = 1
     private const val PACKAGE_NAME = "com.milink.service"
     private const val SERVICE_NAME = "com.miui.miplay.audio.service.CoreService"
     private const val WHITE_TARGET = "com.milink.service:hide_foreground"
@@ -56,7 +55,7 @@ object MiPlayAudioSupport {
             val systemUIReady = systemUIReady(context)
             val notificationReady = notificationReady(context)
             return !isInternationalBuild && systemUIReady && notificationReady
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return false
         }
     }
